@@ -7,7 +7,7 @@
 			inputString: ''
 		},
 		ready: function() {
-			this.splitString("  a aa234dddd");
+			this.splitString("are + aa234dddd");
 		},
 		methods: {
 
@@ -35,26 +35,31 @@
 			 * return 字符串切割后的结果
 			 */
 			splitString: function(string) {
-
-				var blankReg = /(^\s*)|(\s*$)/g;
+				var blankReg = /(^\s*)|(\s*$)/g; // 匹配首尾空格
 				var optReg = /([\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符+-*/!%&左右括号
-				var varReg = /[\w]/; // 匹配变量 
+				var varReg = /(\w+)/; // 匹配变量 
 				var optStack = []; // 运算符栈
 				var varStack = []; // 变量栈
 				while (string.length > 0) {
 
 					string = string.replace(blankReg, ''); // 去除空格
 
-					if (optReg.test(string[0])) { // 运算符
+					if (optReg.test(string[0])) { // 匹配结果为运算符
 						optStack.push(string[0]);
+						string = string.substring(1);
 
 					} else if (varReg.test(string[0])) { // 变量
+						var temp = string.match(varReg)[0];
+						varStack.push(temp);
+						string = string.replace(varReg, "")
 
 					} else {
 						console.log("ERROR - 无法处理的符号：" + string[0]);
 						break;
 					}
 				}
+				console.log(varStack)
+				console.log(optStack)
 
 			},
 
