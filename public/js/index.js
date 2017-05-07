@@ -3,11 +3,14 @@
 	new Vue({
 		el: 'body',
 		data: {
+			optStack: [], // 运算符栈
+			numStack: [], // 数字栈
+			varHash: {}, // 存放变量的哈希表
 			stringList: [],
 			inputString: ''
 		},
 		ready: function() {
-			this.splitString("are + aa234dddd");
+			this.splitString("234.324 + 5");
 		},
 		methods: {
 
@@ -30,37 +33,50 @@
 			/*
 			 * @param 输入的字符串
 			 * 对输入的字符串进行切割
+			 * 切割的同时分析字符串是否合法
 			 * 切割后压入对应的栈
-			 * 变量或数字压入varStack，运算符压入optStack
-			 * return 字符串切割后的结果
+			 * 变量或数字压入numStack，运算符压入optStack
+			 * return
 			 */
 			splitString: function(string) {
 				var blankReg = /(^\s*)|(\s*$)/g; // 匹配首尾空格
-				var optReg = /([\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符+-*/!%&左右括号
-				var varReg = /(\w+)/; // 匹配变量 
+				var optReg = /(^[\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符+-*/!%&左右括号
+				var numReg = /(^\d+)(\.?)(\d*)/; // 匹配数字（包括int、double） 
+				var varReg = /(^\w+)/; // 匹配变量 
 				var optStack = []; // 运算符栈
-				var varStack = []; // 变量栈
+				var numStack = []; // 数字栈
+				var validSymbol = ''; // 合法的字符
 				while (string.length > 0) {
 
 					string = string.replace(blankReg, ''); // 去除空格
 
-					if (optReg.test(string[0])) { // 匹配结果为运算符
+					if (optReg.test(string)) { // 匹配结果为运算符
 						optStack.push(string[0]);
 						string = string.substring(1);
 
-					} else if (varReg.test(string[0])) { // 变量
+					} else if (numReg.test(string)) { // 数字
+						var temp = parseFloat(string.match(numReg)[0]);
+						numStack.push(temp);
+						string = string.replace(numReg, "");
+
+					} else if (varReg.test(string)) { // 变量
 						var temp = string.match(varReg)[0];
-						varStack.push(temp);
-						string = string.replace(varReg, "")
+						numStack.push(temp);
+						string = string.replace(varReg, "");
 
 					} else {
-						console.log("ERROR - 无法处理的符号：" + string[0]);
+						console.log("ERROR - 无法处理的符号：" + string[0] + "(来自" + string + ")");
 						break;
 					}
 				}
-				console.log(varStack)
-				console.log(optStack)
+				console.log(this.calculate(optStack.pop(), numStack.pop(), numStack.pop()));
+			},
 
+			/*
+			 * 栈的计算
+			 */
+			formatStack: function() {
+				t
 			},
 
 			/*
@@ -70,16 +86,16 @@
 			 * @param n1
 			 * @return 
 			 */
-			calculate: function(opt, n1, n2) {
+			calculate: function(opt, n2, n1) {
 				switch (opt) {
 					case "+":
-						return n2 + n1;
+						return n1 + n2;
 					case "-":
-						return n2 - n1;
+						return n1 - n2;
 					case "*":
-						return n2 * n1;
+						return n1 * n2;
 					case "/":
-						return n2 / n1;
+						return n1 / n2;
 					default:
 						throw new Error("unexpected operator:" + opt);
 				}
