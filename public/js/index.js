@@ -7,16 +7,19 @@
 			numStack: [], // 数字栈
 			varHash: {}, // 存放变量的哈希表
 			stringList: [],
-			inputString: ''
+			inputString: "",
+			string: ""
 		},
 		ready: function() {
 			// this.splitString("234.324 + 5");
-			var string = "'123'456";
-			console.log(this.isValuate(string));
+			// this.string = "'123'='444'='888'456";
+			// this.preprocess(this.string);
+			// console.log(this.string);
 		},
 		methods: {
 
 			/*
+			 * 视图操作函数
 			 * 当输入字符串后，
 			 * 对数据结构stringList进行条目的添加
 			 * 添加的条目是词法分析和语法分析后的结果
@@ -24,8 +27,7 @@
 			pushData: function() {
 				var prevList = this.stringList;
 				var originString = this.inputString;
-				this.splitString(originString);
-				var resultString = this.formatStack();
+				var resultString = this.analyse(originString);
 
 				// 将计算结果添加进视图数组中
 				prevList.push({
@@ -38,21 +40,58 @@
 			},
 
 			/*
+			 * 字符串分析入口
+			 */
+			analyse: function(string) {
+				this.string = this.preprocess(string);
+				if (this.string.indexOf("=") > 0) { // 赋值语句
+
+				} else { // 纯粹的运算
+					this.splitString(string);
+					var result = this.formatStack();
+					return result;
+				}
+			},
+
+			/*
+			 * string 引号的预处理
+			 * 将string中的引号部分用变量代替
+			 */
+			preprocess: function(string) {
+				var quoteReg = /\'[^']*\'|\"[^"]*\"/g; // 匹配引号中的内容
+				var key = "";
+				return string.replace(quoteReg, function(target) {
+					do {
+						key = this.getRandString();
+					} while (key in this.varHash);
+					this.varHash[key] = target;
+					return key;
+				}.bind(this));
+				// 先将string中的引号部分用变量代替
+				/*string = string.replace(quoteReg, function(target) {
+					// var key = "x" + Math.random(); // 随机生成变量名
+					console.log(target);
+					var date = new Date();
+					console.log(date.getTime());
+					// this.varHash[key] = target;
+					return key;
+				});*/
+			},
+
+			/*
 			 * 分析输入的字符串
 			 * 1. 为直接的运算语句，如 3 + 5
 			 * 2. 还是赋值语句，如 c = 3 + 5
 			 * return true:赋值语句 、 false: 直接的运算语句
 			 */
-			isValuate: function(string) {
-				var quoteReg = /(\'.*\'|\".*\")/g; // 匹配引号中的内容
-				// 判断字符串是否为赋值语句，需去除引号，再确认"="号
-				string = string.replace(quoteReg, "");
-				if (string.indexOf("=") > 0) {
+			/*isValuate: function(string) {
+				if (string.indexOf("=") >= 0) {
 					return true;
+
 				} else {
 					return false;
 				}
-			},
+			},*/
 
 			/*
 			 * @param string 可运算的字符串
@@ -63,7 +102,6 @@
 			 * return
 			 */
 			splitString: function(string) {
-				var blankReg = /(^\s*)|(\s*$)/g; // 匹配首尾空格
 				var optReg = /(^[\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符+-*/!%&左右括号
 				var numReg = /(^\d+|\-\d+)(\.?)(\d*)/; // 匹配数字（包括正负、int、double） 
 				var varReg = /(^\w+)/; // 匹配变量 
@@ -72,7 +110,7 @@
 
 				while (string.length > 0) {
 
-					string = string.replace(blankReg, ''); // 去除空格
+					string = this.trim(string); // 去除空格
 					if (validSymbol == 'identifier') { // 下一个合法字符为数字或变量
 						if (numReg.test(string)) { // 数字
 							target = parseFloat(string.match(numReg)[0]);
@@ -152,10 +190,23 @@
 			},
 
 			/*
-			 * 检查string是否为数字
+			 * 去除字符串两边的空格
+			 * return string
 			 */
-			isNumber: function(string) {
+			trim: function(string) {
+				var blankReg = /(^\s*)|(\s*$)/g; // 匹配首尾空格
+				return string.replace(blankReg, "");
+			},
 
+			/*
+			 * 生成随机字符串
+			 * return 随机string
+			 */
+			getRandString: function() {
+				// var date = new Date();
+				var string = "" + Math.random();
+				string = string.substring(2);
+				return "x" + string;
 			}
 		}
 	});
