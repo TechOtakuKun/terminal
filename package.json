@@ -1,9 +1,12 @@
 {
-  "name": "principleOfCompiling",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.15.2"
-  }
+	"name": "principleOfCompiling",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"dependencies": {
+		"express": "^4.15.2"
+	}
 }

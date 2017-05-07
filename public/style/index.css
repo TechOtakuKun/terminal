@@ -1,5 +1,5 @@
 /* 界面默认样式 */
-html, body, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dd, dt, p {
+html, body, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dd, dt, p, pre {
 	margin: 0;
 	padding: 0;
 }
@@ -34,10 +34,17 @@ ul li {
 	box-sizing: border-box;
 	border-bottom: solid 1px #F0F0F0;
 }
+ul li pre {
+	display: inline;
+	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+}
 ul li p.string-result {
 
 }
-input {
+.form-control i.icon {
+	color: #3A7FF1;
+}
+.form-control input {
 	width: 90%;
 	color: #666;
 	font-size: 20px;

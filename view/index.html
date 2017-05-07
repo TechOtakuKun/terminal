@@ -10,23 +10,23 @@
 	<div class="container">
 		<ul class="text">
 			<li v-for="item in stringList">
-				<p class="string-origin">
+				<div class="string-origin">
 					<i class="icon">></i>
-					<span class="text-success" v-text="item.stringOrigin">
-					</span>
-				</p>
-				<p class="string-result">
+					<pre class="text-success" v-text="item.stringOrigin">
+					</pre>
+				</div>
+				<div class="string-result">
 					<i class="icon"><</i>
 					<span :class="item.type=='error'? 
 						'text-error':'text-success'" v-text="item.stringResult">
 					</span>
-				</p>
+				</div>
 				
 			</li>
 		</ul>
 		<div class="form-control">
 			<i class="icon">></i>
-			<input type="text" v-model="inputString" v-on:keyup.13="pushData"/>
+			<input type="text" v-model="inputString" v-on:keyup.13="pushData" autofocus=""/>
 		</div>
 	</div>
 	
