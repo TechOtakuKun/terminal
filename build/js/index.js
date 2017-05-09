@@ -16,9 +16,10 @@
 			// this.preProcess(this.string);
 			// console.log(this.string);
 			// var reg = /^\w|\s|\!|\%|\^|\&|\*|\(|\)|\-|\=|\+|\/+$/;
-			// var tereg = /^[\w\s\!\%\^\&\*\(\)\-\=\+\/]+$/;
-			// var string = 'x12@3   3422';
-			// console.log(tereg.test(string));
+			var tereg = /^\d+$/;
+			var string = 'asd';
+			var index = string.lastIndexOf("=");
+			console.log(string.split("="));
 			// this.isVariable(string);
 		},
 		methods: {
@@ -33,9 +34,39 @@
 						resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
 						type: 'error'
 					});
-				} else {
-					this.splitString(string); // 剪切字符串，分析，并压入对应的栈
-					this.formatStack();
+
+				} else { // 通过 = 号将字符串分为左部分（赋值部分）和右部分（运算部分）
+					var index = this.string.lastIndexOf("=");
+					var result = "";
+					if (index > 0) {
+						var validateReg = /^[\w\s\=]+$/;
+						var optString = this.string.substring(index + 1);
+						var validateString = this.string.substring(0, index);
+						if (!validateReg.test(validateString)) {
+							this.pushData({
+								resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
+								type: 'error'
+							});
+							return;
+						}
+						this.splitString(optString); // 剪切字符串，分析，并压入对应的栈
+						result = this.formatStack();
+						if (result) {
+							this.validate(validateString, result);
+							result = validateString + " = " + result;
+						}
+
+					} else {
+						this.splitString(this.string); // 剪切字符串，分析，并压入对应的栈
+						result = this.formatStack();
+					}
+
+					if (result) { // 分析结果顺利
+						this.pushData({
+							resultString: result,
+							type: 'success'
+						});
+					}
 				}
 			},
 
@@ -82,7 +113,7 @@
 			splitString: function(string) {
 				var optReg = /(^[\=\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符=+-*/!%&左右括号
 				var numReg = /(^\d+|\-\d+)(\.?)(\d*)/; // 匹配数字（包括正负、int、double） 
-				var varReg = /(^\w+)/; // 匹配变量 
+				var varReg = /(^\w+)/; // 匹配变量和=
 				var target = ""; // 匹配的字符串
 				var nextState = 'identifier'; // 下一个后续合法的字符类型 identifier | opt
 
@@ -90,15 +121,32 @@
 					string = this.trim(string); // 去除空格
 					if (nextState == 'identifier') { // 下一个合法字符为数字或变量
 						target = string.match(varReg)[0];
-						if (true) {}
-						if (numReg.test(string)) { // 数字
+						if (this.isVariable(target)) { // 变量
+							if (target in this.varHash) { // 查变量的hash表
+								target = this.varHash[target];
+								string = string.replace(numReg, "");
+
+							} else { // 不存在该变量则报错
+								this.pushData({
+									resultString: "查询错误 (Uncaught ReferenceError: " +
+										target + " is not defined)",
+									type: 'error'
+								});
+								return;
+							}
+
+						} else if (this.isNumber(target)) { // 数字
 							target = parseFloat(string.match(numReg)[0]);
 							string = string.replace(numReg, "");
 
-						} else if (varReg.test(string)) { // 变量
-							target = string.match(varReg)[0];
-							string = string.replace(varReg, "");
+						} else {
+							this.pushData({
+								resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
+								type: 'error'
+							});
+							return;
 						}
+
 						this.numStack.push(target);
 						nextState = 'opt';
 
@@ -169,6 +217,15 @@
 			},
 
 			/*
+			 * 赋值操作
+			 */
+			validate: function(validateString, result) {
+				validateString.split("=").map(function(value) {
+					this.varHash[value] = result;
+				}.bind(this));
+			},
+
+			/*
 			 * 视图更新函数
 			 * 当完成字符串分析后，
 			 * 对数据结构stringList进行条目的添加
@@ -203,7 +260,19 @@
 			},
 
 			/*
+			 * 判断字符串是否为数字
+			 * return: true | false
+			 */
+			isNumber: function(string) {
+				var numReg = /^\d+$/; // 匹配数字
+				string = this.trim(string);
+				return numReg.test(string);
+				// return false;
+			},
+
+			/*
 			 * 判断字符串是否为合法变量名
+			 * return: true | false
 			 */
 			isVariable: function(string) {
 				var numReg = /^\d/; // 匹配开头数字
