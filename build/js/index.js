@@ -116,12 +116,12 @@
 				var numReg = /(^\d+|\-\d+)(\.?)(\d*)/; // 匹配数字（包括正负、int、double） 
 				var varReg = /(^\w+)/; // 匹配变量 
 				var target = ""; // 匹配的字符串
-				var validSymbol = 'identifier'; // 下一个后续合法的字符类型
+				var nextState = 'identifier'; // 下一个后续合法的字符类型
 
 				while (string.length > 0) {
 
 					string = this.trim(string); // 去除空格
-					if (validSymbol == 'identifier') { // 下一个合法字符为数字或变量
+					if (nextState == 'identifier') { // 下一个合法字符为数字或变量
 						if (numReg.test(string)) { // 数字
 							target = parseFloat(string.match(numReg)[0]);
 							string = string.replace(numReg, "");
@@ -131,14 +131,14 @@
 							string = string.replace(varReg, "");
 						}
 						this.numStack.push(target);
-						validSymbol = 'opt';
+						nextState = 'opt';
 
-					} else if (validSymbol == 'opt') { // 下一个合法字符为运算符
+					} else if (nextState == 'opt') { // 下一个合法字符为运算符
 						if (optReg.test(string)) { // 匹配结果为运算符
 							this.optStack.push(string[0]);
 							string = string.substring(1);
 						}
-						validSymbol = 'identifier';
+						nextState = 'identifier';
 					}
 
 					/*if (optReg.test(string)) { // 匹配结果为运算符
@@ -212,9 +212,12 @@
 			 * 判断字符串是否为合法变量名
 			 */
 			isVariable: function(string) {
+				var numReg = /^\d/; // 匹配开头数字
+				if (numReg.test(string)) return false;
 				var varReg = /^\w+$/;
-				console.log(varReg.test(string));
-				return false;
+				string = this.trim(string);
+				return varReg.test(string);
+				// return false;
 			},
 
 			/*
