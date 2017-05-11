@@ -16,10 +16,10 @@
 			// this.preProcess(this.string);
 			// console.log(this.string);
 			// var reg = /^\w|\s|\!|\%|\^|\&|\*|\(|\)|\-|\=|\+|\/+$/;
-			var tereg = /^\d+$/;
-			var string = 'asd';
-			var index = string.lastIndexOf("=");
-			console.log(string.split("="));
+			// var tereg = /^\d+$/;
+			// var string = 'asd';
+			// var index = string.lastIndexOf("=");
+			// console.log(string.split("="));
 			// this.isVariable(string);
 		},
 		methods: {
@@ -52,8 +52,11 @@
 						this.splitString(optString); // 剪切字符串，分析，并压入对应的栈
 						result = this.formatStack();
 						if (result) {
-							this.validate(validateString, result);
-							result = validateString + " = " + result;
+							if (this.validate(validateString, result)) {
+								result = validateString + " = " + result;
+							} else {
+								return;
+							}
 						}
 
 					} else {
@@ -218,11 +221,28 @@
 
 			/*
 			 * 赋值操作
+			 * 检查变量合法性
 			 */
 			validate: function(validateString, result) {
-				validateString.split("=").map(function(value) {
-					this.varHash[value] = result;
+				var flag = true;
+				var result = validateString.split("=").map(function(value) {
+					if (this.isVariable(value)) {
+						this.varHash[value] = result;
+						return value;
+
+					} else {
+						flag = false;
+						this.pushData({
+							resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
+							type: 'error'
+						});
+					}
 				}.bind(this));
+				if (flag) {
+					return result;
+				} else {
+					return null;
+				}
 			},
 
 			/*
