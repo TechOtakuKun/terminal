@@ -32,12 +32,14 @@
 			<!-- 13为回车，38为Up，40为Down -->
 			<input type="text" v-model="inputString" autofocus=""
 				 v-on:keyup.13="analyse"
-				 v-on:keyup.38="prevCmd"
-				 v-on:keyup.40="nextCmd"/>
+				 v-on:keyup.38.stop="prevCmd"
+				 v-on:keyup.40.stop="nextCmd"/>
 		</div>
 	</div>
 	
 	<script src="./js/vue.js"></script>
+	<script src="./js/optPriority.js"></script>
+	<script src="./js/bnf.js"></script>
 	<script src="./js/util.js"></script>
 	<script src="./js/index.js"></script>
 </body>

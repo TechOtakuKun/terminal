@@ -38,7 +38,7 @@
 		 *				false: 非法
 		 */
 		isValid: function(string) {
-			var validReg = /^[\w\s\!\%\^\&\*\(\)\-\=\+\/]+$/; // 合法的所有字符
+			var validReg = /^[\w\s\!\%\^\&\|\+\-\*\/\(\)\=\[\]]+$/; // 合法的所有字符
 			// 返回字符串是否合法
 			return validReg.test(string);
 		},
