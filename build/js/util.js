@@ -144,28 +144,6 @@
 		},
 
 		/*
-		 * 运算
-		 * @param opt 运算符
-		 * @param n1
-		 * @param n1
-		 * @return 
-		 */
-		calculate: function(opt, n2, n1) {
-			switch (opt) {
-				case "+":
-					return n1 + n2;
-				case "-":
-					return n1 - n2;
-				case "*":
-					return n1 * n2;
-				case "/":
-					return n1 / n2;
-				default:
-					return;
-			}
-		},
-
-		/*
 		 * 生成随机字符串
 		 * return 随机string
 		 */
@@ -176,7 +154,7 @@
 		}
 	}
 
-	// 注册进全局 window 对象中
+	// 将util注册进全局 window 对象中
 	window.UT = util;
 
 })(window);

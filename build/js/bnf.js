@@ -250,19 +250,40 @@
 		 */
 		boolExpr: function(string) {
 			string = UT.trim(string);
-
+			var symReg = /(.*)(==|!=|<=|>=|>|<|&&|\|\||!)(.+)/;
 			if (UT.isBool(string)) {
 				return string == 'true';
-
-			} else {
-				throw new Error("Uncaught SyntaxError: Invalid or unexpected token")
 			}
+			string.replace(symReg, function(target, $1, $2, $3) {
+				switch ($2) {
+					case '==':
+						return this.arithExpr($1) == this.arithExpr($3);
+					case '!=':
+						return this.arithExpr($1) != this.arithExpr($3);
+					case '<=':
+						return this.arithExpr($1) <= this.arithExpr($3);
+					case '>=':
+						return this.arithExpr($1) >= this.arithExpr($3);
+					case '<':
+						return this.arithExpr($1) < this.arithExpr($3);
+					case '>':
+						return this.arithExpr($1) > this.arithExpr($3);
+					case '&&':
+						return this.arithExpr($1) && this.arithExpr($3);
+					case '||':
+						return this.arithExpr($1) || this.arithExpr($3);
+					case '!':
+						return !this.arithExpr($3);
+					default:
+						throw new Error("Uncaught SyntaxError: Invalid or unexpected token")
+				}
+			});
 		},
 		// ###---------- END----------###
 
 	};
 
-	// 注册进全局对象window中
+	// 将BNF注册进全局对象window中
 	window.BNF = BNF;
 
 })(window);
