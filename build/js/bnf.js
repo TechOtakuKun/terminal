@@ -90,11 +90,11 @@
 
 					// 待定
 					// return rightResult;
-					return "ans=" + rightResult;
+					return leftString + " = " + rightResult;
 				}
 
 			} else { // 纯运算  =>  Expr 
-				return this.expr(string);
+				return "ans = " + this.expr(string);
 			}
 		},
 
