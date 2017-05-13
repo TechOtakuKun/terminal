@@ -1,32 +1,25 @@
 (function() {
 	Vue.config.devtools = false;
+	var varHash = {}; // 存放变量的哈希表
 	new Vue({
 		el: 'body',
 		data: {
+			bnf: null,
 			optStack: [], // 运算符栈
 			numStack: [], // 数字栈
-			varHash: {}, // 存放变量的哈希表
+			// varHash: {},
 			stringList: [], // 存储命令和结果列表
 			cmdIndex: 0, // 第n条命令
 			inputString: "",
 			string: ""
 		},
 		ready: function() {
-			// this.splitString("234.324 + 5");
-			// this.string = "'123'='444'='888'456";
-			// this.preProcess(this.string);
-			// console.log(this.string);
-			// var reg = /^\w|\s|\!|\%|\^|\&|\*|\(|\)|\-|\=|\+|\/+$/;
-			// var tereg = /^\d+$/;
-			// var string = 'asd';
-			// var index = string.lastIndexOf("=");
-			// console.log(string.split("="));
-			// UT.isVariable(string);
+			this.bnf = new BNF();
 		},
 		methods: {
 			/*
 			 * 视图更新函数
-			 * 当完成字符串分析后，
+			 * 当完成字符串的运算后，
 			 * 对数据结构stringList进行条目的添加
 			 * 添加的条目是词法分析和语法分析后的结果
 			 * @param: data: {
@@ -34,19 +27,32 @@
 					type: "error" | "success" // 结果类型
 			 *}
 			 */
-			pushData: function(data) {
+			pushData: function() {
+				this.string = this.preProcess(this.inputString);
 				var prevList = this.stringList;
 				var originString = this.inputString;
-				var resultString = data.resultString;
+				var resultString = "";
+				try {
+					resultString = this.bnf.init("a = true ? true ? 4 : 5: 3");
+					prevList.push({
+						originString: originString,
+						resultString: resultString,
+						type: 'success'
+					});
 
+				} catch (error) {
+					resultString = error.message;
+					prevList.push({
+						originString: originString,
+						resultString: resultString,
+						type: 'error'
+					});
+				}
+				// 指令数++
+				this.cmdIndex++;
 				// 将计算结果添加进视图数组中
-				prevList.push({
-					originString: originString,
-					resultString: resultString,
-					type: data.type
-				});
 				this.$set('stringList', prevList); // 更新数据结构stringList
-				this.$set('inputString', ''); // 还原input控件的内容
+				this.inputString = ""; // 还原input控件的内容
 			},
 
 			/*
@@ -54,67 +60,19 @@
 			 */
 			prevCmd: function() {
 				this.cmdIndex > 0 && this.cmdIndex--;
-				this.inputString = this.stringList[this.cmdIndex];
+				this.inputString = this.stringList[this.cmdIndex].originString;
 			},
 
 			/*
-			 * 退回下一条命令
+			 * 进至下一条命令
 			 */
 			nextCmd: function() {
-
-			},
-
-			/*
-			 * 字符串分析入口
-			 */
-			analyse: function() {
-				var string = this.inputString;
-				this.string = this.preProcess(string); // 对字符串进行预处理
-				if (!UT.isValid(this.string)) { // 检查字符串是否合法
-					this.pushData({
-						resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
-						type: 'error'
-					});
-
-				} else { // 通过 = 号将字符串分为左部分（赋值部分）和右部分（运算部分）
-					var index = this.string.lastIndexOf("=");
-					var result = "";
-					if (index > 0) {
-						// var validateReg = /^[\w\s\=]+$/;
-						var optString = this.string.substring(index + 1);
-						var validateString = this.string.substring(0, index);
-						// if (!validateReg.test(validateString)) {
-						// 	this.pushData({
-						// 		resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
-						// 		type: 'error'
-						// 	});
-						// 	return;
-						// }
-						this.splitString(optString); // 剪切字符串，分析，并压入对应的栈
-						result = this.formatStack();
-						if (result) {
-							if (this.validate(validateString, result)) {
-								result = validateString + " = " + result;
-							} else {
-								this.pushData({
-									resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
-									type: 'error'
-								});
-								return;
-							}
-						}
-
-					} else {
-						this.splitString(this.string); // 剪切字符串，分析，并压入对应的栈
-						result = this.formatStack();
-					}
-
-					if (result) { // 分析结果顺利
-						this.pushData({
-							resultString: result,
-							type: 'success'
-						});
-					}
+				var length = this.stringList.length;
+				if (this.cmdIndex < length - 1) {
+					this.cmdIndex++;
+					this.inputString = this.stringList[this.cmdIndex].originString;
+				} else {
+					this.inputString = "";
 				}
 			},
 
@@ -132,124 +90,10 @@
 				return string.replace(quoteReg, function(target) {
 					do {
 						key = UT.getRandString();
-					} while (key in this.varHash);
-					this.varHash[key] = target;
+					} while (key in varHash);
+					varHash[key] = target;
 					return key;
 				}.bind(this));
-			},
-
-			/*
-			 * @param string 可运算的字符串
-			 * 对给定字符串进行切割
-			 * 切割的同时分析字符串是否合法
-			 * 切割后分析，并压入对应的栈
-			 * 变量或数字压入this.numStack，运算符压入this.optStack
-			 * return void;
-			 */
-			splitString: function(string) {
-				var optReg = /(^[\=\+\-\*\/\!\%\^\&\(\)])/; // 匹配运算符=+-*/!%&左右括号
-				var numReg = /(^\d+|\-\d+)(\.?)(\d*)/; // 匹配数字（包括正负、int、double） 
-				var varReg = /(^\w+)/; // 匹配变量和=
-				var target = ""; // 匹配的字符串
-				var nextState = 'identifier'; // 下一个后续合法的字符类型 identifier | opt
-
-				while (string.length > 0) {
-					string = UT.trim(string); // 去除空格
-					if (nextState == 'identifier') { // 下一个合法字符为数字或变量
-						target = string.match(varReg)[0];
-						if (UT.isVariable(target)) { // 变量
-							if (target in this.varHash) { // 查变量的hash表
-								target = this.varHash[target];
-								string = string.replace(numReg, "");
-
-							} else { // 不存在该变量则报错
-								this.pushData({
-									resultString: "查询错误 (Uncaught ReferenceError: " +
-										target + " is not defined)",
-									type: 'error'
-								});
-								return;
-							}
-
-						} else if (UT.isNumber(target)) { // 数字
-							target = parseFloat(string.match(numReg)[0]);
-							string = string.replace(numReg, "");
-
-						} else {
-							this.pushData({
-								resultString: "语法错误 (Uncaught SyntaxError: Invalid or unexpected token)",
-								type: 'error'
-							});
-							return;
-						}
-
-						this.numStack.push(target);
-						nextState = 'opt';
-
-					} else if (nextState == 'opt') { // 下一个合法字符为运算符
-						if (optReg.test(string)) { // 匹配结果为运算符
-							this.optStack.push(string[0]);
-							string = string.substring(1);
-						}
-						nextState = 'identifier';
-					}
-
-					/*if (optReg.test(string)) { // 匹配结果为运算符
-						this.optStack.push(string[0]);
-						string = string.substring(1);
-
-					} else if (numReg.test(string)) { // 数字
-						var temp = parseFloat(string.match(numReg)[0]);
-						this.numStack.push(temp);
-						string = string.replace(numReg, "");
-
-					} else if (varReg.test(string)) { // 变量
-						var temp = string.match(varReg)[0];
-						this.numStack.push(temp);
-						string = string.replace(varReg, "");
-
-					} else {
-						console.log("ERROR - 无法处理的符号：" + string[0] + "(来自" + string + ")");
-						break;
-					}*/
-				}
-			},
-
-			/*
-			 * 对optStack和numStack两个栈进行计算
-			 */
-			formatStack: function() {
-				var optStack = this.optStack;
-				var numStack = this.numStack;
-				// 循环地弹出栈并进行计算
-				while (optStack.length > 0) {
-					var temp = this.calculate(optStack.pop(), numStack.pop(), numStack.pop());
-					numStack.push(temp);
-				}
-				// 当optStack为空时，numStack剩下唯一一个元素，即numStack[0]即为结果
-				return numStack.pop();
-			},
-
-			/*
-			 * 对等号左方的变量进行赋值操作
-			 * 同时检查变量的合法性
-			 */
-			validate: function(validateString, result) {
-				var flag = true;
-				var result = validateString.split("=").map(function(value) {
-					if (UT.isVariable(value)) {
-						this.varHash[value] = result;
-						return value;
-
-					} else {
-						flag = false;
-					}
-				}.bind(this));
-				if (flag) {
-					return result;
-				} else {
-					return null;
-				}
 			},
 		}
 	});
