@@ -13,6 +13,16 @@
 		 * 判断字符串是否为数字
 		 * return: true | false
 		 */
+		isBool: function(string) {
+			var boolReg = /^true|false$/; // 匹配数字 int和float
+			string = this.trim(string);
+			return boolReg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为数字
+		 * return: true | false
+		 */
 		isNumber: function(string) {
 			var numReg = /(^\d+|\-\d+)(\.?)(\d*)$/; // 匹配数字 int和float
 			string = this.trim(string);
@@ -37,6 +47,46 @@
 			var delReg = /^\[\s*\]$/; // 匹配合法变量名 字母开头，后跟字母数字下划线
 			string = this.trim(string);
 			return delReg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为singleFunc: sin (ArithExpr)
+		 * return: true | false
+		 */
+		isSingleFunc: function(string) {
+			var reg = /^sin\s*\(.+\)$|^cos\s*\(.+\)$/; // 匹配sin () 或cos();
+			string = this.trim(string);
+			return reg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为 sin (ArithExpr)
+		 * return: true | false
+		 */
+		isSin: function(string) {
+			var reg = /^sin\s*\(.+\)$/; // 匹配sin () 或cos();
+			string = this.trim(string);
+			return reg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为 cos (ArithExpr)
+		 * return: true | false
+		 */
+		isCos: function(string) {
+			var reg = /^cos\s*\(.+\)$/; // 匹配sin () 或cos();
+			string = this.trim(string);
+			return reg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为multipleFunc: sin (ArithExpr)
+		 * return: true | false
+		 */
+		isMultipleFunc: function(string) {
+			var reg = /^max\s*\(.+\)$|^min\s*\(.+\)$/; // 匹配sin () 或cos();
+			string = this.trim(string);
+			return reg.test(string);
 		},
 
 		/*

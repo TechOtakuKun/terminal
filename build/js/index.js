@@ -26,22 +26,31 @@
 			// console.log(string.match(equalReg));
 			// UT.isVariable(string);
 			// console.log(Math.pow(6, 2));
-			var string = "if (a == b) a=2 else a=3 end";
+			var boolReg = /^true|false$/; // 匹配数字 int和float
+			var reg = /^sin\s*\(.+\)$|^cos\s*\(.+\)$/; // 匹配sin () 或cos();
+			var string = "cos(3)";
+			var testString = "true";
 			var indexIf = string.indexOf("if");
 			var indexLParen = string.indexOf("(");
 			var indexRParen = string.indexOf(")");
 			var indexElse = string.lastIndexOf("else");
 			var indexEnd = string.lastIndexOf("end");
-			console.log(string.substring(indexLParen + 1, indexRParen))
-				// var index = string.lastIndexOf("if");
-				// var string = string.substring(0 + 1);
-				// console.log(string.substring(0, index))
-				// console.log(index);
-				// var arr = string.split("");
-				// console.log(arr.shift());
-				// console.log(arr.join(""))
-			var bnf = new BNF("if (true) 2 else 3 end");
-			bnf.command();
+			// console.log(reg.test(string));
+			// var index = string.lastIndexOf("if");
+			// var string = string.substring(0 + 1);
+			// console.log(string.substring(0, index))
+			// console.log(index);
+			// var arr = string.split("");
+			// console.log(arr.shift());
+			// console.log(arr.join(""))
+			var bnf = new BNF();
+			// try {
+			var result = bnf.init("a = sin(2)");
+			console.log(result)
+
+			// } catch (error) {
+			// 	console.log(error.message);
+			// }
 		},
 		methods: {
 			/*
