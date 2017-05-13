@@ -8,7 +8,8 @@
 
 	BNF.prototype = {
 		command: function() {
-			// if ()
+			var string = UT.trim(this.string);
+			this.sentence(string);
 		},
 
 		/*
@@ -33,11 +34,12 @@
 				indexEnd > indexElse) {
 				// ifSenternce  ==>   if  (Expr)   Sentence  else  Sentence  end 
 
-				var exprString = UT.trim(string.substring(2, indexLParen));
+				var exprString = UT.trim(string.substring(indexLParen + 1, indexRParen));
 				var xSentence = UT.trim(string.substring(indexRParen + 1, indexElse));
 				var ySentence = UT.trim(string.substring(indexElse + 1, indexEnd));
 				if (this.expr(exprString)) {
-					console.log(this.sentence(xSentence));
+					console.log('succ')
+						// console.log(this.sentence(xSentence));
 					return this.sentence(xSentence);
 
 				} else {
