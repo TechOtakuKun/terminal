@@ -1,6 +1,7 @@
 (function(window) {
 	function BNF(string) {
-		this.string = string;
+		this.string = string; // 原生的string
+		this.clearString = string; // 对原生string清除过括号中字符后产生的string
 		this.varHash = {
 			a: 123
 		}
@@ -17,11 +18,6 @@
 			}
 			var string = UT.trim(string);
 			return this.command(string);
-			// try {
-			// 	this.test("2");
-			// } catch (error) {
-			// 	console.log(error.message);
-			// }
 		},
 		// ###---------- END----------###
 
@@ -106,6 +102,51 @@
 		 *  expr -> ArithExpr
 		 */
 		expr: function(string) {
+			// 优先处理括号内运算符和","所引起的问题
+			// 匹配 sin() | cos() | max() | min() | ()
+			var parenReg = /([^\w]*)(sin|cos|max|min)*\s*\(([^()]*)\)/;
+			while (parenReg.test(string)) {
+				string = string.replace(parenReg, function(target, $1, $2, $3) {
+					if ($2 == 'sin') {
+						return $1 + Math.sin(this.arithExpr($3));
+					}
+					if ($2 == 'cos') {
+						return $1 + Math.cos(this.arithExpr($3));
+					}
+
+					// 分割","
+					var arithExprList = $3.split(",").map(function(value) {
+						return this.arithExpr(value);
+					}.bind(this));
+
+					switch ($2) {
+						case 'max':
+							return $1 + UT.max(arithExprList);
+						case 'min':
+							return $1 + UT.min(arithExprList);
+						default:
+							return $1 + this.arithExpr($3);
+					}
+				}.bind(this));
+				console.log(string);
+			}
+
+			// 处理二元运算符的配对问题
+			var binReg = /([^\?\:]*)\?([^\?\:]*)\:([^\?\:]*)/;
+			while (binReg.test(string)) {
+				string = string.replace(binReg, function(target, $1, $2, $3) {
+					if (this.boolExpr($1)) {
+						return this.arithExpr($2);
+
+					} else {
+						return this.arithExpr($3);
+					}
+
+				}.bind(this));
+				console.log(string);
+			}
+
+			// 括号问题处理完成，进入arithExpr
 			return this.arithExpr(string);
 		},
 
@@ -119,7 +160,7 @@
 		 *					|  SingleFunc  |  MultipleFunc 
 		 */
 		arithExpr: function(string) {
-			var array = string.split("");
+			string = UT.trim(string);
 			var indexPow = string.indexOf("^"); // 右结合
 			var indexBin = string.indexOf("?"); // 右结合，故为indexOf
 			var indexCol = string.lastIndexOf(":");
@@ -128,19 +169,11 @@
 			var indexSub = string.lastIndexOf("-");
 			var indexMul = string.lastIndexOf("*");
 			var indexDiv = string.lastIndexOf("/");
-
-			// 递归是反向的，故按照运算符优先级从低到高排列
 			if (UT.isNumber(string)) { // Number
 				return parseFloat(string);
 
-			} else if (UT.isBool(string)) {
+			} else if (UT.isBool(string)) { // Boolean
 				return string == "true";
-
-			} else if (UT.isSingleFunc(string)) { // SingleFunc
-				return this.singleFunc(string);
-
-			} else if (UT.isMultipleFunc(string)) { // MultipleFunc
-				return this.MultipleFunc(string);
 
 			} else if (UT.isVariable(string)) { // Variable
 				// 查询存储变量的哈希表，若不存在则报错
@@ -153,6 +186,7 @@
 				}
 
 			} else if (indexBin > 0 && indexCol > indexBin) { // ? : ==> 二元运算符
+				// 递归是反向的，故按照运算符优先级从低到高排列
 				var boolString = UT.trim(string.substring(0, indexBin));
 				var leftString = UT.trim(string.substring(indexBin + 1, indexCol));
 				var rightString = UT.trim(string.substring(indexCol + 1));
@@ -201,46 +235,9 @@
 				rightResult = this.arithExpr(rightString);
 				return -rightResult;
 
-			} else if (array.shift() == "(" && array.pop() == ")") { // 括号 ==> ( arithExpr )
-				string = array.join("");
-				var result = this.arithExpr(string);
-				return result;
-
 			} else {
 				throw new Error("Uncaught SyntaxError: Invalid or unexpected token");
 			}
-		},
-
-		singleFunc: function(string) {
-			var indexLeft = string.indexOf("(") + 1;
-			var indexRight = string.length - 1;
-			var resultString = UT.trim(string.substring(indexLeft, indexRight));
-			var result = this.arithExpr(resultString);
-			if (UT.isSin(string)) {
-				console.log('succ')
-				return Math.sin(result);
-
-			} else if (UT.isCos(string)) {
-				return Math.cos(result);
-
-			} else {
-				throw new Error("Uncaught SyntaxError: Invalid or unexpected token");
-			}
-		},
-
-		multipleFunc: function(string) {
-			// var indexLeft = string.indexOf("(") + 1;
-			// var indexRight = string.length;
-			// var resultString = UT.trim(string.substring(indexLeft, indexRight));
-			// if (UT.isMax(string)) {
-			// 	return Math.max(this.arithExpr(resultString));
-
-			// } else if (UT.isMin(string)) {
-			// 	return Math.min(this.arithExpr(resultString));
-
-			// } else {
-			// 	throw new Error("Uncaught SyntaxError: Invalid or unexpected token");
-			// }
 		},
 
 		/*
@@ -253,20 +250,16 @@
 		 */
 		boolExpr: function(string) {
 			string = UT.trim(string);
-			var array = string.split("");
 
 			if (UT.isBool(string)) {
 				return string == 'true';
 
-			} else if (array.shift() == "(" && array.pop() == ")") {
-				string = array.join("");
-				var result = this.boolExpr(string);
-				return result;
-
 			} else {
 				throw new Error("Uncaught SyntaxError: Invalid or unexpected token")
 			}
-		}
+		},
+		// ###---------- END----------###
+
 	};
 
 	// 注册进全局对象window中

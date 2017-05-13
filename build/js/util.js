@@ -10,6 +10,38 @@
 		},
 
 		/*
+		 * 求数组最大值
+		 * return number
+		 */
+		max: function(array) {
+			if (Object.prototype.toString.call(array) !== '[object Array]' ||
+				array.length == 0) {
+				throw new Error("参数错误，max(array) 的参数必须为数组且长度大于0");
+			}
+			var maxNum = array[0];
+			for (var i = 1; i < array.length; i++) {
+				if (array[i] > maxNum) maxNum = array[i];
+			}
+			return maxNum;
+		},
+
+		/*
+		 * 求数组最小值
+		 * return number
+		 */
+		min: function(array) {
+			if (Object.prototype.toString.call(array) !== '[object Array]' ||
+				array.length == 0) {
+				throw new Error("参数错误，max(array) 的参数必须为数组且长度大于0");
+			}
+			var minNum = array[0];
+			for (var i = 1; i < array.length; i++) {
+				if (array[i] < maxNum) maxNum = array[i];
+			}
+			return minNum;
+		},
+
+		/*
 		 * 判断字符串是否为数字
 		 * return: true | false
 		 */
@@ -75,6 +107,16 @@
 		 */
 		isCos: function(string) {
 			var reg = /^cos\s*\(.+\)$/; // 匹配sin () 或cos();
+			string = this.trim(string);
+			return reg.test(string);
+		},
+
+		/*
+		 * 判断字符串是否为 max (ArithExpr, ArithExprList)
+		 * return: true | false
+		 */
+		isMax: function(string) {
+			var reg = /^max\s*\(.+\)$/; // 匹配sin () 或cos();
 			string = this.trim(string);
 			return reg.test(string);
 		},
