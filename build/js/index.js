@@ -25,13 +25,16 @@
 			// var index = string.lastIndexOf("=");
 			// console.log(string.match(equalReg));
 			// UT.isVariable(string);
-			var string = "(asdf)";
-			var index = string.lastIndexOf(")")
-			console.log(string.substring(0, index))
-			var arr = string.split("");
-			console.log(arr.shift());
-			console.log(arr.join(""))
-			var bnf = new BNF("a = 3 + 6 * 2 - 5");
+			// console.log(Math.pow(6, 2));
+			// var string = "i f (a == b) ";
+			// var index = string.lastIndexOf("if");
+			// var string = string.substring(0 + 1);
+			// console.log(string.substring(0, index))
+			// console.log(index);
+			// var arr = string.split("");
+			// console.log(arr.shift());
+			// console.log(arr.join(""))
+			var bnf = new BNF("if (true) 2 else 3 end");
 			bnf.sentence();
 		},
 		methods: {
