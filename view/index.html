@@ -3,7 +3,9 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
-	<link rel="stylesheet" href="./style/index.css">
+	<!-- build:css ./css/index.min.css -->
+	<link rel="stylesheet" href="/css/index.css">
+	<!-- /build -->
 </head>
 <body>
 	<h1>编译原理 -- Terminal实现</h1>
@@ -37,9 +39,21 @@
 		</div>
 	</div>
 	
-	<script src="./js/vue.js"></script>
-	<script src="./js/bnf.js"></script>
-	<script src="./js/util.js"></script>
-	<script src="./js/index.js"></script>
+	<!-- build:js ./js/vue/vue.min.js -->
+	<script src="/js/vue/vue.js"></script>
+	<!-- /build -->
+
+	<!-- build:js ./js/bnf.min.js -->
+	<script src="/js/bnf.js"></script>
+	<!-- /build -->
+
+	<!-- build:js ./js/util.min.js -->
+	<script src="/js/util.js"></script>
+	<!-- /build -->
+
+	<!-- build:js ./js/index.min.js -->
+	<script src="/js/index.js"></script>
+	<!-- /build -->
+
 </body>
 </html>

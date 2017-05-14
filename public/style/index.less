@@ -7,6 +7,9 @@ body {
 	padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+ul {
+	list-style: none;
+}
 a {
   color: #00B7FF;
   text-decoration: none;
@@ -23,37 +26,31 @@ h1 {
 	border-radius: 4px;
 	line-height: 32px;
 	color: #666;
-}
-ul {
-	list-style: none;
-}
-.text-error {
-	color: #FF0000;
+	.text-error {
+		color: #FF0000;
+	}
+	ul li {
+		border-bottom: solid 1px #F0F0F0;
+		pre {
+			display: inline;
+			font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+		}
+	}
+	.form-control {
+		input {
+			width: 90%;
+			color: #666;
+			font-size: 20px;
+			border: 0;
+			outline: none;
+			line-height: 30px;
+		}
+		i.icon {
+			color: #3A7FF1;
+		}
+	}
 }
 
-
-ul li {
-	// box-sizing: border-box;
-	border-bottom: solid 1px #F0F0F0;
-}
-ul li pre {
-	display: inline;
-	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-ul li p.string-result {
-
-}
-.form-control i.icon {
-	color: #3A7FF1;
-}
-.form-control input {
-	width: 90%;
-	color: #666;
-	font-size: 20px;
-	border: 0;
-	outline: none;
-	line-height: 30px;
-}
 [v-cloak] {
 	display: none;
 }
