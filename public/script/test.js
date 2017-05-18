@@ -1,4 +1,9 @@
 (function() {
+
+	/*
+	 * test.js : 测试调试时用
+	 */
+
 	Vue.config.devtools = false;
 	var varHash = {}; // 存放变量的哈希表
 	new Vue({

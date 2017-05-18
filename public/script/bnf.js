@@ -173,6 +173,14 @@
 		 */
 		arithExpr: function(string) {
 			string = UT.trim(string);
+			// 先将string中的科学记数法转化为普通数字
+			var regE = /([\+\-\*\/\^])\s*([\d\.]+)(e[\+\-][\d\.]*)/ig;
+			var countE = [];
+			string = string.replace(regE, function(value, $1, $2, $3) {
+				return $1 + parseFloat($2 + $3);
+			});
+
+
 			if (UT.isNumber(string)) { // Number
 				return parseFloat(string);
 
@@ -194,7 +202,7 @@
 			var $1 = ""; // 左方字符串
 			var $2 = ""; // 运算符
 			var $3 = ""; // 右方字符串
-			var array = "";
+			var array = [];
 			if (array = string.match(addSubReg)) { // 加减法
 				$1 = array[1];
 				$2 = array[2];

@@ -2,8 +2,8 @@
 
 	/*
 	 * util 为通用的工具类，
-	 * 对一些常用的方法（如去字符串空格的方法trim，判断字符串类型的方法isNumber/isVariable）
-	 * 实现了封装
+	 * 对一些常用的方法实现了封装
+	 * （如去字符串空格的方法trim，判断字符串类型的方法isNumber/isVariable）
 	 * 对外公开的类名为 UT
 	 */
 	var util = {
@@ -108,7 +108,7 @@
 		 * return: true | false
 		 */
 		isBool: function(string) {
-			var boolReg = /^true|false$/; // 匹配数字 int和float
+			var boolReg = /^true|false$/i; // 匹配数字 int和float
 			string = this.trim(string);
 			return boolReg.test(string);
 		},
@@ -118,6 +118,23 @@
 		 * return: true | false
 		 */
 		isNumber: function(string) {
+			string = this.trim(string);
+			var regFloat = /^\-?\s*\d+(\.\d+)?$/i; // 普通float
+			var regExp = /^\-?\s*\d+(\.\d+)?(e[\+\-])(.*)$/i; // 带有科学记数法e的数字
+			if (string.match(regFloat)) return true;
+			var array = [];
+			if (array = string.match(regExp)) {
+				var $3 = array[3];
+				return this.isNumber($3);
+			} else {
+				return false;
+			}
+		},
+
+		/*
+		 * test
+		 */
+		isNumberTest: function(string) {
 			var numReg = /^\-*\s*(\d+|\-\d+)(\.?)(\d*)$/; // 匹配数字 int和float
 			string = this.trim(string);
 			return numReg.test(string);
