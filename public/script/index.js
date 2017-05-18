@@ -13,6 +13,9 @@
 			string: ""
 		},
 		ready: function() {
+			// var reg = /^(\s*\w+\s*)\=(.)*/;
+			// var string = "abcxyz = 123 + 456";
+			// console.log(string.match(reg))
 			this.bnf = new BNF();
 		},
 		methods: {

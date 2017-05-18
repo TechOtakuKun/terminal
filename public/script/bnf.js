@@ -74,7 +74,7 @@
 				var $1 = array[1];
 				var $2 = array[2];
 				var $3 = array[3];
-				if (this.boolExpr($1)) {
+				if (this.expr($1)) {
 					return this.sentence($2);
 				} else {
 					return this.sentence($3);
@@ -123,10 +123,10 @@
 				console.log(string);
 			}
 
-			var indexEqual = string.indexOf("=");
-			if (indexEqual > 0) { // 包含"="号
-				var leftString = UT.trim(string.substring(0, indexEqual));
-				var rightString = UT.trim(string.substring(indexEqual + 1));
+			var regEqual = /^(\s*\w+\s*)\=(.)*/;
+			if (array = string.match(regEqual)) { // 包含"="号
+				var leftString = UT.trim(array[1]);
+				var rightString = UT.trim(array[2]);
 
 				if (!UT.isVariable(leftString)) {
 					throw new Error("Uncaught SyntaxError: Invalid or unexpected token");
@@ -196,6 +196,8 @@
 					throw new Error("Uncaught ReferenceError: " + string + " is not defined");
 				}
 			}
+
+			var symReg = /(.*)(==|!=|<=|>=|>|<|&&|\|\||!)(.+)/; // 匹配关系运算符
 			var addSubReg = /(.*\w+)\s*([\+\-])(.+)/; // 匹配加减法，减号前面不能跟+-*/，否则就是取负操作
 			var mulDivReg = /(.*\w+)\s*([\*\/\%])(.+)/; // 匹配乘除法
 			var powReg = /([^/^]*\w+)\s*([\^])(.+)/; // 匹配^，n次方
@@ -203,7 +205,10 @@
 			var $2 = ""; // 运算符
 			var $3 = ""; // 右方字符串
 			var array = [];
-			if (array = string.match(addSubReg)) { // 加减法
+			if (array = string.match(symReg)) { // 关系运算
+				return this.boolExpr(string);
+
+			} else if (array = string.match(addSubReg)) { // 加减法
 				$1 = array[1];
 				$2 = array[2];
 				$3 = array[3];
@@ -268,6 +273,9 @@
 				case '||':
 					return this.arithExpr($1) || this.arithExpr($3);
 				case '!':
+					if ($1) {
+						throw new Error("Uncaught SyntaxError: Invalid or unexpected token")
+					}
 					return !this.arithExpr($3);
 				default:
 					throw new Error("Uncaught SyntaxError: Invalid or unexpected token")
