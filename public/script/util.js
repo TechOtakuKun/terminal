@@ -35,7 +35,7 @@
 				return $1 + $2;
 			}
 			if (typeof $1 != 'number' || typeof $2 != 'number') {
-				throw new Error("类型错误 Type error")
+				throw new Error("类型不匹配 Type error")
 			}
 
 			var index$1, //$1的浮点位
@@ -120,7 +120,7 @@
 		isNumber: function(string) {
 			string = this.trim(string);
 			var regFloat = /^\-?\s*\d+(\.\d+)?$/i; // 普通float
-			var regExp = /^\-?\s*\d+(\.\d+)?(e[\+\-])(.*)$/i; // 带有科学记数法e的数字
+			var regExp = /^\-?\s*\d+(\.\d+)?(e[\+\-]?)(.*)$/i; // 带有科学记数法e的数字
 			if (string.match(regFloat)) return true;
 			var array = [];
 			if (array = string.match(regExp)) {

@@ -123,7 +123,7 @@
 				console.log(string);
 			}
 
-			var regEqual = /^(\s*\w+\s*)\=(.)*/;
+			var regEqual = /^(\s*\w+\s*)\=(.*)/;
 			if (array = string.match(regEqual)) { // 包含"="号
 				var leftString = UT.trim(array[1]);
 				var rightString = UT.trim(array[2]);
@@ -174,9 +174,10 @@
 		arithExpr: function(string) {
 			string = UT.trim(string);
 			// 先将string中的科学记数法转化为普通数字
-			var regE = /([\+\-\*\/\^])\s*([\d\.]+)(e[\+\-][\d\.]*)/ig;
+			var regE = /([\+\-\*\/\^\>\<\=])\s*([\d\.]+)(e[\+\-]?[\d\.]*)/ig;
 			var countE = [];
 			string = string.replace(regE, function(value, $1, $2, $3) {
+				console.log(value);
 				return $1 + parseFloat($2 + $3);
 			});
 
