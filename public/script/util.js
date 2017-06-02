@@ -60,6 +60,9 @@
 				case '*':
 					return $1 * $2;
 				case '/':
+					if ($2 == 0) {
+						throw new Error("Semamtic error: 除数不能为0");
+					}
 					return (($1 * mag) / ($2 * mag));
 				case '%':
 					return parseInt($1) % parseInt($2);
